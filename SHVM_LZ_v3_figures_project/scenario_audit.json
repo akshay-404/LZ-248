@@ -1,0 +1,243 @@
+{
+  "scope": "recoil-only, approximate isotopes and acceptance; not LZ PLR",
+  "halo": {
+    "v0_kms": 238.0,
+    "vesc_kms": 544.0,
+    "vEarth_kms": 250.0,
+    "rho_GeV_cm3": 0.3
+  },
+  "isotopes_count_abundances": [
+    [
+      124,
+      0.00095
+    ],
+    [
+      126,
+      0.00089
+    ],
+    [
+      128,
+      0.0191
+    ],
+    [
+      129,
+      0.26401
+    ],
+    [
+      130,
+      0.04071
+    ],
+    [
+      131,
+      0.21232
+    ],
+    [
+      132,
+      0.26909
+    ],
+    [
+      134,
+      0.10436
+    ],
+    [
+      136,
+      0.08857
+    ]
+  ],
+  "N_target_per_tonne": 4.583482360574572e+27,
+  "efficiency": "0.96 low logistic(5.4,1.5) high erfc(269.9,12), true energy",
+  "dipole": "charge response only, magnetic nuclear-spin response omitted",
+  "rows": [
+    {
+      "scenario": "A dipole-charge, mu=0.0018muN, xi=1",
+      "mass_GeV": 1000,
+      "delta_keV_signed": 300,
+      "N_toy_per_2p84_tonneyear": 1.4288778636820925,
+      "fraction_200_270_keV": 0.2167921566572728,
+      "fraction_below_150_keV": 0.17899664360883003,
+      "peak_keV": 170.5,
+      "vmin_248_kms_A131": 704.6571626536185,
+      "lambda_m_at_680_kms": 0.6172457261276522,
+      "toy_survival_L0p5m": 0.44483575213192544,
+      "toy_max_science_events_L0p5m": 0.6489163450841717
+    },
+    {
+      "scenario": "A dipole-charge, mu=0.0018muN, xi=1",
+      "mass_GeV": 1000,
+      "delta_keV_signed": 350,
+      "N_toy_per_2p84_tonneyear": 0.005837701069028141,
+      "fraction_200_270_keV": 0.7653185654414738,
+      "fraction_below_150_keV": 0.0,
+      "peak_keV": 213.49999999999997,
+      "vmin_248_kms_A131": 765.5859860613367,
+      "lambda_m_at_680_kms": 0.38870284794044563,
+      "toy_survival_L0p5m": 0.2762829784537612,
+      "toy_max_science_events_L0p5m": 0.0016695333112259076
+    },
+    {
+      "scenario": "B UDD vector, eps=1e-4, g=1, mV=10GeV, xi=1",
+      "mass_GeV": 3000,
+      "delta_keV_signed": 350,
+      "N_toy_per_2p84_tonneyear": 0.54402168169037,
+      "fraction_200_270_keV": 0.5224181899185061,
+      "fraction_below_150_keV": 0.003064431966622053,
+      "peak_keV": 198.25,
+      "vmin_248_kms_A131": 741.0011473246522,
+      "epsilon_for_one_toy_event": 0.00013557883434528367
+    },
+    {
+      "scenario": "C hybrid Z, qZ=1/4, xi=1",
+      "mass_GeV": 3000,
+      "delta_keV_signed": 275,
+      "N_toy_per_2p84_tonneyear": 1127.7477643005902,
+      "fraction_200_270_keV": 0.1812038285435886,
+      "fraction_below_150_keV": 0.2763814980744163,
+      "peak_keV": 163.0,
+      "vmin_248_kms_A131": 649.6079122130748
+    },
+    {
+      "scenario": "C hybrid Z, qZ=1/4, xi=1",
+      "mass_GeV": 3000,
+      "delta_keV_signed": 350,
+      "N_toy_per_2p84_tonneyear": 20.979119200762522,
+      "fraction_200_270_keV": 0.5164099373947382,
+      "fraction_below_150_keV": 0.003363228290663906,
+      "peak_keV": 197.74999999999997,
+      "vmin_248_kms_A131": 741.0011473246522
+    },
+    {
+      "scenario": "C hybrid Z, qZ=1/4, xi=1",
+      "mass_GeV": 3000,
+      "delta_keV_signed": 370,
+      "N_toy_per_2p84_tonneyear": 2.105260040734597,
+      "fraction_200_270_keV": 0.8476847796686886,
+      "fraction_below_150_keV": 0.0,
+      "peak_keV": 218.5,
+      "vmin_248_kms_A131": 765.3726766877394
+    },
+    {
+      "scenario": "C hybrid Z, qZ=1/4, xi=1",
+      "mass_GeV": 3000,
+      "delta_keV_signed": 375,
+      "N_toy_per_2p84_tonneyear": 0.9410732073173672,
+      "fraction_200_270_keV": 0.9210502536449038,
+      "fraction_below_150_keV": 0.0,
+      "peak_keV": 224.49999999999997,
+      "vmin_248_kms_A131": 771.4655590285112
+    },
+    {
+      "scenario": "D CS exothermic, Gp=1e-6GeV^-2, excited fraction=1",
+      "mass_GeV": 3000,
+      "delta_keV_signed": -270,
+      "N_toy_per_2p84_tonneyear": 7254.5792298929155,
+      "fraction_200_270_keV": 0.12652699402316855,
+      "fraction_below_150_keV": 0.45365390295923036,
+      "peak_keV": 156.25,
+      "vmin_248_kms_A131": 14.516262931053609
+    },
+    {
+      "scenario": "D CS exothermic, Gp=1e-6GeV^-2, excited fraction=1",
+      "mass_GeV": 3000,
+      "delta_keV_signed": -600,
+      "N_toy_per_2p84_tonneyear": 150.28813510376654,
+      "fraction_200_270_keV": 0.5860471626532876,
+      "fraction_below_150_keV": 0.011288406036523374,
+      "peak_keV": 206.74999999999997,
+      "vmin_248_kms_A131": 416.6464974219936
+    },
+    {
+      "scenario": "D CS exothermic, Gp=1e-6GeV^-2, excited fraction=1",
+      "mass_GeV": 3000,
+      "delta_keV_signed": -800,
+      "N_toy_per_2p84_tonneyear": 1.035279790947147,
+      "fraction_200_270_keV": 0.9999869775275685,
+      "fraction_below_150_keV": 0.0,
+      "peak_keV": 240.99999999999997,
+      "vmin_248_kms_A131": 660.3617910528664
+    },
+    {
+      "scenario": "D CS exothermic, Gp=1e-6GeV^-2, excited fraction=1",
+      "mass_GeV": 3000,
+      "delta_keV_signed": -850,
+      "N_toy_per_2p84_tonneyear": 0.1373648512353959,
+      "fraction_200_270_keV": 0.9999999999999997,
+      "fraction_below_150_keV": 0.0,
+      "peak_keV": 249.74999999999997,
+      "vmin_248_kms_A131": 721.2906144605846
+    },
+    {
+      "scenario": "D CS, f2=0.1, mV=1GeV, g=0.1, eps fitted to one toy",
+      "mass_GeV": 3000,
+      "delta_keV_signed": -800,
+      "N_toy_per_2p84_tonneyear": 1.0,
+      "fraction_200_270_keV": 0.999986784085115,
+      "fraction_below_150_keV": 0.0,
+      "peak_keV": 240.75,
+      "vmin_248_kms_A131": 660.3617910528664,
+      "epsilon_for_one_toy_event": 5.428435336788891e-05
+    },
+    {
+      "scenario": "E hybrid Z+V, node=110keV, xi=1",
+      "mass_GeV": 3000,
+      "delta_keV_signed": 275,
+      "N_toy_per_2p84_tonneyear": 67.37365766194641,
+      "fraction_200_270_keV": 0.369138808802451,
+      "fraction_below_150_keV": 0.07810015946622198,
+      "peak_keV": 187.74999999999997,
+      "vmin_248_kms_A131": 649.6079122130748,
+      "epsilon_node": -1.0125429612275288e-05
+    },
+    {
+      "scenario": "E hybrid Z+V, node=140keV, xi=1",
+      "mass_GeV": 3000,
+      "delta_keV_signed": 290,
+      "N_toy_per_2p84_tonneyear": 16.81557891837224,
+      "fraction_200_270_keV": 0.5155699872529559,
+      "fraction_below_150_keV": 0.03555386584804947,
+      "peak_keV": 200.75,
+      "vmin_248_kms_A131": 667.8865592353902
+    }
+  ],
+  "sensitivity_one_at_a_time": {
+    "vesc_kms": {
+      "511": {
+        "B_delta350_eps1e-4": 0.03779234440239579,
+        "C_delta370_qZquarter": 0.0029381820944455574,
+        "D_minus800_Gp1e-6": 0.6367456863398748,
+        "E_delta290_node140": 11.77404788341516
+      },
+      "544": {
+        "B_delta350_eps1e-4": 0.54402168169037,
+        "C_delta370_qZquarter": 2.105260040734597,
+        "D_minus800_Gp1e-6": 1.035279790947147,
+        "E_delta290_node140": 16.81557891837224
+      },
+      "577": {
+        "B_delta350_eps1e-4": 1.678981390912454,
+        "C_delta370_qZquarter": 16.412877932564765,
+        "D_minus800_Gp1e-6": 1.4526985005507993,
+        "E_delta290_node140": 20.80558718678827
+      }
+    },
+    "uniform_Helm_q_scale": {
+      "0.97": {
+        "B_delta350_eps1e-4": 0.8254939474192607,
+        "C_delta370_qZquarter": 3.9196605359594594,
+        "D_minus800_Gp1e-6": 2.4611050436949027,
+        "E_delta290_node140": 25.540903880862004
+      },
+      "1.0": {
+        "B_delta350_eps1e-4": 0.54402168169037,
+        "C_delta370_qZquarter": 2.105260040734597,
+        "D_minus800_Gp1e-6": 1.035279790947147,
+        "E_delta290_node140": 16.81557891837224
+      },
+      "1.03": {
+        "B_delta350_eps1e-4": 0.33930285159496265,
+        "C_delta370_qZquarter": 1.016526333745737,
+        "D_minus800_Gp1e-6": 0.35517866640949625,
+        "E_delta290_node140": 10.72838195668064
+      }
+    }
+  }
+}
