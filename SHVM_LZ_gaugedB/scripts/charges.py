@@ -1,54 +1,73 @@
 """Exact anomaly / kinetic-mixing / stability audit for the SHVM gauged-baryon-number portal.
 Hypercharge normalised as Q = T3 + Y (so Y_Q=1/6). All fields as left-handed Weyl multiplets."""
+from math import gcd
 from fractions import Fraction as F
 import itertools
-def fields(NTC,NDTC,nU,nD,q,qX,qXp,qC,qS,BTC):
-    L=[] # (name, mult (colour*TC*DQCD*...), dim SU2, Y, B)
+
+
+def fields(NTC, NDTC, nU, nD, q, qX, qXp, qC, qS, BTC):
+    L = []  # (name, mult (colour*TC*DQCD*...), dim SU2, Y, B)
     for g in range(3):
-        L+= [('Q',3,2,F(1,6),F(1,3)),('uc',3,1,F(-2,3),F(-1,3)),('dc',3,1,F(1,3),F(-1,3)),
-             ('L',1,2,F(-1,2),F(0)),('ec',1,1,F(1),F(0)),('nc',1,1,F(0),F(0))]
-    L+= [('QTC',NTC,2,F(0),BTC),('Tc',NTC,1,F(-1,2),-BTC),('Bc',NTC,1,F(1,2),-BTC)]   # T_R Y=+1/2, B_R Y=-1/2
-    def vl(name,mult,Y,B): return [(name,mult,1,Y,B),(name+'c',mult,1,-Y,-B)]
-    L+= vl('U',3*nU,F(2,3),q)+vl('D',3*nD,F(-1,3),q)
-    L+= vl('X',3*NTC,F(1,6),qX)+vl('Xp',3*NDTC,F(1,6),qXp)
-    L+= vl('C',NDTC,F(1,2),qC)+vl('S',NDTC,F(-1,2),qS)
+        L += [('Q', 3, 2, F(1, 6), F(1, 3)), ('uc', 3, 1, F(-2, 3), F(-1, 3)), ('dc', 3, 1, F(1, 3), F(-1, 3)),
+              ('L', 1, 2, F(-1, 2), F(0)), ('ec', 1, 1, F(1), F(0)), ('nc', 1, 1, F(0), F(0))]
+    L += [('QTC', NTC, 2, F(0), BTC), ('Tc', NTC, 1, F(-1, 2), -BTC),
+          ('Bc', NTC, 1, F(1, 2), -BTC)]   # T_R Y=+1/2, B_R Y=-1/2
+    def vl(name, mult, Y, B): return [
+        (name, mult, 1, Y, B), (name+'c', mult, 1, -Y, -B)]
+    L += vl('U', 3*nU, F(2, 3), q)+vl('D', 3*nD, F(-1, 3), q)
+    L += vl('X', 3*NTC, F(1, 6), qX)+vl('Xp', 3*NDTC, F(1, 6), qXp)
+    L += vl('C', NDTC, F(1, 2), qC)+vl('S', NDTC, F(-1, 2), qS)
     return L
+
+
 def audit(L):
-    A={}
-    A['SU2^2 B']=sum(m*F(1,2)*B for n,m,d,Y,B in L if d==2)
-    A['Y^2 B']=sum(m*d*Y*Y*B for n,m,d,Y,B in L)
-    A['Y B^2']=sum(m*d*Y*B*B for n,m,d,Y,B in L)
-    A['B^3']=sum(m*d*B**3 for n,m,d,Y,B in L)
-    A['grav B']=sum(m*d*B for n,m,d,Y,B in L)
-    A['SU3c^2 B']=sum((m//3 if n in('Q','uc','dc') else 0)*d*F(1,2)*B for n,m,d,Y,B in L)
+    A = {}
+    A['SU2^2 B'] = sum(m*F(1, 2)*B for n, m, d, Y, B in L if d == 2)
+    A['Y^2 B'] = sum(m*d*Y*Y*B for n, m, d, Y, B in L)
+    A['Y B^2'] = sum(m*d*Y*B*B for n, m, d, Y, B in L)
+    A['B^3'] = sum(m*d*B**3 for n, m, d, Y, B in L)
+    A['grav B'] = sum(m*d*B for n, m, d, Y, B in L)
+    A['SU3c^2 B'] = sum((m//3 if n in ('Q', 'uc', 'dc') else 0)
+                        * d*F(1, 2)*B for n, m, d, Y, B in L)
     # kinetic mixing trace (Dirac-weighted = sum over Weyl of Y*B with conjugates counted: Y*B invariant under conj)
-    A['Tr(Y B) [kin. mixing]']=sum(m*d*Y*B for n,m,d,Y,B in L)
+    A['Tr(Y B) [kin. mixing]'] = sum(m*d*Y*B for n, m, d, Y, B in L)
     return A
-for (NTC,NDTC) in [(2,2),(4,2),(2,4)]:
-    q=F(5,2); BTC=F(-3,NTC)
-    for (nU,nD) in [(3,3),(3,6)]:
-        qX=q+BTC                        # hybrid (qqX)Tbar decays to chi via (Xbar D)(lbar Q_TC)
+
+
+for (NTC, NDTC) in [(2, 2), (4, 2), (2, 4)]:
+    q = F(5, 2)
+    BTC = F(-3, NTC)
+    for (nU, nD) in [(3, 3), (3, 6)]:
+        # hybrid (qqX)Tbar decays to chi via (Xbar D)(lbar Q_TC)
+        qX = q+BTC
         # Tr=0 solution with qC=qS and qXp=q+qS:
-        base=audit(fields(NTC,NDTC,nU,nD,q,qX,q,0,0,BTC))['Tr(Y B) [kin. mixing]']
+        base = audit(fields(NTC, NDTC, nU, nD, q, qX, q, 0, 0, BTC))[
+            'Tr(Y B) [kin. mixing]']
         # d Tr/d qS: Xp contributes NDTC*(1/6)*2*3 = NDTC per unit, C,S contribute 0 when qC=qS
-        qS=-(base-NDTC*q+NDTC*q)/NDTC if False else None
+        qS = -(base-NDTC*q+NDTC*q)/NDTC if False else None
         # solve linear: Tr(qS) = Tr(qXp=q+qS, qC=qS)
-        t0=audit(fields(NTC,NDTC,nU,nD,q,qX,q,0,0,BTC))['Tr(Y B) [kin. mixing]']
-        t1=audit(fields(NTC,NDTC,nU,nD,q,qX,q+1,1,1,BTC))['Tr(Y B) [kin. mixing]']
-        qS=-t0/(t1-t0)
-        A=audit(fields(NTC,NDTC,nU,nD,q,qX,q+qS,qS,qS,BTC))
-        print('(N_TC,N_DTC)=(%d,%d) (nU,nD)=(%d,%d): B_TC=%s q=%s q_X=%s q_C=q_S=%s q_X\'=%s'%(NTC,NDTC,nU,nD,BTC,q,qX,qS,q+qS))
-        print('    ',{k:str(v) for k,v in A.items()})
+        t0 = audit(fields(NTC, NDTC, nU, nD, q, qX, q, 0, 0, BTC))[
+            'Tr(Y B) [kin. mixing]']
+        t1 = audit(fields(NTC, NDTC, nU, nD, q, qX, q+1,
+                   1, 1, BTC))['Tr(Y B) [kin. mixing]']
+        qS = -t0/(t1-t0)
+        A = audit(fields(NTC, NDTC, nU, nD, q, qX, q+qS, qS, qS, BTC))
+        print('(N_TC,N_DTC)=(%d,%d) (nU,nD)=(%d,%d): B_TC=%s q=%s q_X=%s q_C=q_S=%s q_X\'=%s' % (
+            NTC, NDTC, nU, nD, BTC, q, qX, qS, q+qS))
+        print('    ', {k: str(v) for k, v in A.items()})
 # stability: residual group Z_n from S with Q_B(S) = -2 Q_chi = -15
 print('\n=== DM stability, integer-rescaled charges (x12), N_TC=4, nD=2nU')
-unit=12
-Qchi=F(15,2); QS=-2*Qchi
-charges={'SM quark':F(1,3),'lepton':0,'TC fermion':F(-3,4),'DQCD quark':F(5,2),'S':QS,'chi':Qchi}
-print({k:int(v*unit) for k,v in charges.items()})
-n=abs(int(QS*unit))
+unit = 12
+Qchi = F(15, 2)
+QS = -2*Qchi
+charges = {'SM quark': F(1, 3), 'lepton': 0, 'TC fermion': F(-3, 4),
+           'DQCD quark': F(5, 2), 'S': QS, 'chi': Qchi}
+print({k: int(v*unit) for k, v in charges.items()})
+n = abs(int(QS*unit))
 # lattice generated by gauge-singlet light states: SM baryons (1), TC baryons (4 TC fermions: -3), mesons (0), S condensate (15)
-gens=[int(F(1)*unit),int(F(-3)*unit),int(QS*unit)]
-from math import gcd
-g=0
-for x in gens: g=gcd(g,abs(x))
-print('residual Z_%d; lattice of light singlet charges = %d Z ; chi charge %d -> %s'%(n,g,int(Qchi*unit),'STABLE (not in lattice)' if int(Qchi*unit)%g else 'can decay'))
+gens = [int(F(1)*unit), int(F(-3)*unit), int(QS*unit)]
+g = 0
+for x in gens:
+    g = gcd(g, abs(x))
+print('residual Z_%d; lattice of light singlet charges = %d Z ; chi charge %d -> %s' %
+      (n, g, int(Qchi*unit), 'STABLE (not in lattice)' if int(Qchi*unit) % g else 'can decay'))

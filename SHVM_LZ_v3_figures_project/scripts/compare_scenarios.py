@@ -196,7 +196,7 @@ def sensitivity_scan() -> dict:
         VESC, VS, PDF, ETA, ZETA = saved[:5]
         original_helm = saved[5]
         for scale in (.97, 1., 1.03):
-            helm = lambda aa, q, s=scale: original_helm(aa, q*s)
+            helm = lambda a, q, s=scale: original_helm(a, q*s)
             output['uniform_Helm_q_scale'][str(scale)] = selected_counts()
     finally:
         VESC, VS, PDF, ETA, ZETA, helm = saved

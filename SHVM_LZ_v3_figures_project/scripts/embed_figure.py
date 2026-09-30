@@ -2,14 +2,10 @@
 
 import importlib.util
 from pathlib import Path
-
+import compare_scenarios as scenario
 import numpy as np
 
 ROOT = Path(__file__).resolve().parent.parent
-SPEC = importlib.util.spec_from_file_location("scenario", ROOT / "scripts/compare_scenarios.py")
-scenario = importlib.util.module_from_spec(SPEC)
-SPEC.loader.exec_module(scenario)
-
 source = (ROOT / "SHVM_LZ_v3_revised.tex").read_text()
 source = source.replace("\\usepackage[colorlinks", "\\usepackage{pgfplots}\n\\pgfplotsset{compat=1.18}\n\\usepackage[colorlinks", 1)
 
