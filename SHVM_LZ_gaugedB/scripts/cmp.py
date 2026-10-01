@@ -1,6 +1,13 @@
 import numpy as np
 import importlib.util
 import json
+from pathlib import Path
+import sys
+
+ROOT = lambda x : Path(__file__).resolve().parents[x]
+PROJECT_ROOT = Path(__file__).resolve().parents[2]
+sys.path.insert(0, str(PROJECT_ROOT))
+
 from SHVM_LZ_v3_figures_project.scripts import compare_scenarios as cs
 
 cs.ER = np.linspace(1., 1300., 5197)*1e-6
@@ -53,4 +60,4 @@ for xi in (1.4e-4, 9e-4):
     print('C at xi=%.1e: delta(N_cal=1)=%.0f keV, f200-300=%.2f f<150=%.2f R_HE=%.3f' %
           (xi, d1, s['f200'], s['fl150'], s['he']))
     out['Crelic_%g' % xi] = dict(delta=d1, **s)
-json.dump(out, open('cmp.json', 'w'), indent=1, default=float)
+json.dump(out, open(ROOT(0) / 'cmp.json', 'w'), indent=1, default=float)

@@ -1,12 +1,15 @@
 """Build a single TeX source with the scenario comparison plot as PGFPlots data."""
 
-import importlib.util
 from pathlib import Path
-import compare_scenarios as scenario
+import sys
+PROJECT_ROOT = Path(__file__).resolve().parents[2]
+sys.path.insert(0, str(PROJECT_ROOT))
+
+import SHVM_LZ_v3_figures_project.scripts.compare_scenarios as scenario
 import numpy as np
 
-ROOT = Path(__file__).resolve().parent.parent
-source = (ROOT / "SHVM_LZ_v3_revised.tex").read_text()
+ROOT = lambda x : Path(__file__).resolve().parents[x]
+source = (ROOT(1) / "SHVM_LZ_v3_revised.tex").read_text()
 source = source.replace("\\usepackage[colorlinks", "\\usepackage{pgfplots}\n\\pgfplotsset{compat=1.18}\n\\usepackage[colorlinks", 1)
 
 labels_and_rates = [
@@ -48,4 +51,4 @@ plot.extend([r"\end{axis}", r"\end{tikzpicture}",
 start = source.index(r"\begin{figure}[t]")
 end = source.index(r"\end{figure}", start) + len(r"\end{figure}")
 source = source[:start] + "\n".join(plot) + source[end:]
-(ROOT / "SHVM_LZ_v3_figures_embedded.tex").write_text(source)
+(ROOT(1) / "SHVM_LZ_v3_figures_embedded.tex").write_text(source)

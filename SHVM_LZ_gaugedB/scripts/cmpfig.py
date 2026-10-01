@@ -1,17 +1,21 @@
 import matplotlib.pyplot as plt
 from rec import *
 import numpy as np
-import importlib.util
-import sys
 import matplotlib
 matplotlib.use('Agg')
+
+from pathlib import Path
+import sys
+
+ROOT = lambda x : Path(__file__).resolve().parents[x]
+PROJECT_ROOT = Path(__file__).resolve().parents[2]
+sys.path.insert(0, str(PROJECT_ROOT))
+
 from SHVM_LZ_v3_figures_project.scripts import compare_scenarios as cs
 
 cs.ER = np.linspace(1., 1100., 4397)*1e-6
 acc0 = cs.acceptance
 Ee = cs.E
-sys.path.insert(0, '/home/claude/st')
-
 
 def curve(fun, *a, **k):
     cs.acceptance = lambda er: np.ones_like(er)
@@ -58,5 +62,5 @@ ax.set_ylabel(r'$dN/dE_R$ before acceptance [keV$^{-1}$]')
 ax.set_title('All scenarios normalised to one accepted ROI event', fontsize=10)
 ax.legend(fontsize=7.5, loc='upper left', bbox_to_anchor=(1.01, 1.0))
 plt.tight_layout()
-plt.savefig('/home/claude/st/fig_scenarios.pdf')
-plt.savefig('/home/claude/st/fig_scenarios.png', dpi=90)
+plt.savefig(ROOT(1) / 'fig_scenarios.pdf')
+plt.savefig(ROOT(1)  / 'fig_scenarios.png', dpi=90)

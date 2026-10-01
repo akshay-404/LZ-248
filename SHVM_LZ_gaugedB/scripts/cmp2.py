@@ -1,8 +1,14 @@
 from rec import *
 import numpy as np
-import importlib.util
 import json
+
+from pathlib import Path
 import sys
+
+ROOT = lambda x : Path(__file__).resolve().parents[x]
+PROJECT_ROOT = Path(__file__).resolve().parents[2]
+sys.path.insert(0, str(PROJECT_ROOT))
+
 from SHVM_LZ_v3_figures_project.scripts import compare_scenarios as cs
 
 cs.ER = np.linspace(1., 1300., 5197)*1e-6
@@ -41,4 +47,4 @@ for m in (1000., 3000.):
           (m, g(200, 300, ra), g(0, 150, ra), g(270, 350, r), 0.9*g(350, 650, r)))
     out['G_%d' % m] = dict(f200=g(200, 300, ra), fl150=g(
         0, 150, ra), gap=g(270, 350, r), he=0.9*g(350, 650, r))
-json.dump(out, open('cmp.json', 'w'), indent=1, default=float)
+json.dump(out, open(ROOT(0) / 'cmp2.json', 'w'), indent=1, default=float)

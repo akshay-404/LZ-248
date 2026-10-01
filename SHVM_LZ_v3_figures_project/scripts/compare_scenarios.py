@@ -8,10 +8,14 @@ from __future__ import annotations
 
 import json
 from pathlib import Path
+ROOT = lambda x : Path(__file__).resolve().parents[x]
 
 import numpy as np
 from scipy.integrate import cumulative_trapezoid
 from scipy.special import erf, erfc, spherical_jn
+import matplotlib
+matplotlib.use('Agg')
+import matplotlib.pyplot as plt
 
 C = 299792.458  # km/s
 GF = 1.1663787e-5  # GeV^-2
@@ -204,10 +208,7 @@ def sensitivity_scan() -> dict:
 
 
 def main() -> None:
-    import matplotlib
-    matplotlib.use('Agg')
-    import matplotlib.pyplot as plt
-    root = Path(__file__).resolve().parent.parent
+
     rows = []
     for d in [300, 350]:
         r = rate_dipole_charge(1000, d, 1.8e-3)
@@ -255,7 +256,7 @@ def main() -> None:
               'dipole':'charge response only, magnetic nuclear-spin response omitted',
               'rows':rows}
     output['sensitivity_one_at_a_time'] = sensitivity_scan()
-    (root/'scenario_audit.json').write_text(json.dumps(output,indent=2))
+    (ROOT(1) / 'compare_scenario.json').write_text(json.dumps(output,indent=2))
     for x in rows:
         print(x)
     # Area-normalized comparison; no background, detector smearing or veto.
@@ -275,8 +276,8 @@ def main() -> None:
     ax.legend(fontsize=8,ncol=2)
     ax.grid(alpha=.2)
     fig.tight_layout()
-    fig.savefig(root/'scenario_shapes.pdf')
-    fig.savefig(root/'scenario_shapes.png',dpi=180)
+    fig.savefig(ROOT(1) / 'compare_scenario_shapes.pdf')
+    fig.savefig(ROOT(1) / 'compare_scenario_shapes.png',dpi=180)
 
 
 if __name__ == '__main__':

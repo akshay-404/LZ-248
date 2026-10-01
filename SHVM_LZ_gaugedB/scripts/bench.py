@@ -1,6 +1,10 @@
 import numpy as np
 import json
 from rec import *
+from pathlib import Path
+
+ROOT = lambda x : Path(__file__).resolve().parents[x]
+
 h = Halo()
 E = np.linspace(1, 1200, 4800)
 K = 0.394
@@ -45,7 +49,7 @@ for m in (1000., 3000.):
                     MVgB=MG, gq=gq, pert=pert, mod=mod, f200=f200))
         print('%5.0f %4d %10.2e %10.2e %7.3f %8.0f %8.3f %7.2f %7.2f %7.2f' %
               (m, d, s1, sHE, R, MG, gq, pert, mod, f200))
-json.dump(rows, open('bench.json', 'w'), indent=1)
+json.dump(rows, open(ROOT(0) / 'bench.json', 'w'), indent=1)
 # ST benchmark reproduction with calibration: sigma=6.5e-43 at 1 TeV 300 keV
 roi, he, r = parts(1000, 300)
 print('ST benchmark sigma=6.5e-43: N_acc(cal)=%.3f (ST: 0.26), N_HE=%.4f' %

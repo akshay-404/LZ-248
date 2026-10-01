@@ -1,6 +1,10 @@
 import numpy as np
 import json
 from rec import *
+from pathlib import Path
+
+ROOT = lambda x : Path(__file__).resolve().parents[x]
+
 h = Halo()
 E = np.linspace(1, 1200, 4800)
 ST = {300: 2.5e-42, 320: 8.5e-42, 340: 5.5e-41, 350: 2.2e-40}
@@ -89,4 +93,4 @@ for m, d in [(1000, 300), (3000, 330)]:
         print('m=%d d=%d: Gamma=%.2e GeV, T_dec=%.1f keV, f2/f1 at decoupling=%.1e, then decays with tau=%.1e s -> f2(today)=0' %
             (m, d, Gam, Tdec*1e6, np.exp(-d*1e-6/Tdec), tau))
 json.dump({k: (v if not isinstance(v, dict) else {str(a): b for a, b in v.items()})
-          for k, v in out.items()}, open('pheno.json', 'w'), indent=1, default=float)
+          for k, v in out.items()}, open(ROOT(0) / 'pheno.json', 'w'), indent=1, default=float)

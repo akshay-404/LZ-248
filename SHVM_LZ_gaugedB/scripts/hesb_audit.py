@@ -1,6 +1,11 @@
 import numpy as np
-import importlib.util
+from pathlib import Path
 import sys
+
+ROOT = lambda x : Path(__file__).resolve().parents[x]
+PROJECT_ROOT = Path(__file__).resolve().parents[2]
+sys.path.insert(0, str(PROJECT_ROOT))
+
 from SHVM_LZ_v3_figures_project.scripts import compare_scenarios as cs
 
 cs.ER = np.linspace(1., 1200., 4797)*1e-6

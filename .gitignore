@@ -2,6 +2,5 @@
 !*/
 !*.py
 !*.md
-!*.json
 .lz
 !.gitignore
