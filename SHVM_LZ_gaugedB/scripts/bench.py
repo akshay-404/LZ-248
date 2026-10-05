@@ -3,7 +3,7 @@ import json
 from rec import *
 from pathlib import Path
 
-ROOT = lambda x : Path(__file__).resolve().parents[x]
+ROOT = lambda x: Path(__file__).resolve().parents[x]
 
 h = Halo()
 E = np.linspace(1, 1200, 4800)
@@ -17,7 +17,7 @@ def parts(m, d, skin=1.037, halo=h):
     roi = np.trapezoid(r*lz_eff(E), E)*2.84
     w = (E >= 350) & (E <= 650)
     he = np.trapezoid(r[w], E[w])*0.9*2.84
-    return roi, he, r
+    return r, roi, he
 
 
 def portal(sigma, m, Qchi=7.5):
@@ -27,13 +27,14 @@ def portal(sigma, m, Qchi=7.5):
 
 
 rows = []
-print('%5s %4s %10s %10s %7s %8s %8s %7s %7s %7s' % ('m', 'd', 'sig1_cal',
-      'sigHEmax', 'R_HE', 'MV/gB', 'g_q@1.44', 'pert', 'Jun/Dec', 'f200'))
+print('%10s %10s %10s %10s %10s %10s %10s %10s %10s %10s' %
+      ('m', 'd', 'sig1_cal', 'sigHEmax', 'R_HE', 'MV/gB', 'g_q@1.44', 'pert', 'Jun/Dec', 'f200'))
 hJ = Halo(vE=265.)
 hD = Halo(vE=235.)
-for m in (1000., 3000.):
-    for d in (280, 300, 310, 320, 330, 340, 350, 360):
-        roi, he, r = parts(m, d)
+for m in (1000., 2000., 3000.):
+    for d in range(250, 400, 10):
+
+        r, roi, he = parts(m, d)
         if roi <= 0:
             continue
         s1 = 1e-42/roi/K          # calibrated one-accepted-event cross section
@@ -42,16 +43,29 @@ for m in (1000., 3000.):
         MG = portal(s1, m)
         gq = 1440/MG/3
         pert = (15*1440/MG)**2/(4*np.pi)
-        mod = parts(m, d, halo=hJ)[0]/parts(m, d, halo=hD)[0]
+        mod = parts(m, d, halo=hJ)[1]/parts(m, d, halo=hD)[1]
         acc = r*lz_eff(E)
         f200 = np.trapezoid(acc[E >= 200], E[E >= 200])/np.trapezoid(acc, E)
-        rows.append(dict(m=m, d=d, sigma1=s1, sigHEmax=sHE, R_HE=R,
-                    MVgB=MG, gq=gq, pert=pert, mod=mod, f200=f200))
-        print('%5.0f %4d %10.2e %10.2e %7.3f %8.0f %8.3f %7.2f %7.2f %7.2f' %
+        rows.append({
+                    "m": m,
+                    "d": d,
+                    "sigma1": s1,
+                    "sigHEmax": sHE,
+                    "R_HE": R,
+                    "MVgB": MG,
+                    "gq": gq,
+                    "pert": pert,
+                    "mod": mod,
+                    "f200": f200
+                })
+
+        print('%10.0f %10d %10.2e %10.2e %10.3f %10.0f %10.3f %10.2f %10.2f %10.2f' %
               (m, d, s1, sHE, R, MG, gq, pert, mod, f200))
-json.dump(rows, open(ROOT(0) / 'bench.json', 'w'), indent=1)
+
+json.dump(rows, open(ROOT(0) / 'bench.json', 'w'), indent=2)
+
 # ST benchmark reproduction with calibration: sigma=6.5e-43 at 1 TeV 300 keV
-roi, he, r = parts(1000, 300)
+r, roi, he=parts(1000, 300)
 print('ST benchmark sigma=6.5e-43: N_acc(cal)=%.3f (ST: 0.26), N_HE=%.4f' %
       (roi*6.5e-43/1e-42*K, he*6.5e-43/1e-42*K))
-print('v_S for MV=1.44 TeV, gB=0.146, Q_S=15:', 1440/(15*0.146), 'GeV')
+print('v_S for MV=1.44 TeV, gB=0.146, Q_S=15: %.5f GeV' % (1440/(15*0.146)))

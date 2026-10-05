@@ -3,4 +3,6 @@
 !*.py
 !*.md
 .lz
+.vscode
+main.py
 !.gitignore
