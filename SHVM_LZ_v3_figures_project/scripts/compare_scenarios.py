@@ -43,10 +43,8 @@ def speed_pdf(v: np.ndarray) -> np.ndarray:
     norm = erf(z) - 2 * z * np.exp(-z*z) / np.sqrt(np.pi)
     pref = v / (np.sqrt(np.pi) * V0 * VE * norm)
     first = np.exp(-((v - VE)/V0)**2)
-    second = np.where(v < VESC - VE,
-                      np.exp(-((v + VE)/V0)**2), np.exp(-z*z))
-    return np.where((v >= 0) & (v <= VESC + VE),
-                    pref * (first-second), 0.)
+    second = np.where(v < VESC - VE, np.exp(-((v + VE)/V0)**2), np.exp(-z*z))
+    return np.where((v >= 0) & (v <= VESC + VE), pref * (first-second), 0.)
 
 
 PDF = speed_pdf(VS)
@@ -83,17 +81,22 @@ def vmin(er: np.ndarray, ma: float, mass: float, delta: float) -> np.ndarray:
 
 
 def moment(v: np.ndarray, integrand: np.ndarray) -> np.ndarray:
-    return np.interp(v, VS, integrand, left=integrand[0], right=0)
+    return np.interp(v, VS, integrand, right=0)
 
 
 def common_rate_factor(mass: float, fraction: float) -> float:
     return fraction*N_TONNE*YR*RHO/mass*C*1e5*HBARC2
 
 
-def rate_vector(mass: float, delta_kev: float, kind: str,
-                fraction: float = 1, mvec: float = 10,
-                gdark: float = 1, eps: float = 1e-4,
-                node_kev: float = 110) -> np.ndarray:
+def rate_vector(
+        mass: float,
+        delta_kev: float,
+        kind: str,
+        fraction: float = 1,
+        mvec: float = 10,
+        gdark: float = 1,
+        eps: float = 1e-4,
+        node_kev: float = 110) -> np.ndarray:
     """Vector amplitude with kind = Z, B, D, E; E = hybrid Z+V."""
     delta = delta_kev*1e-6  # negative for exothermic D
     out = np.zeros_like(ER)
@@ -112,9 +115,10 @@ def rate_vector(mass: float, delta_kev: float, kind: str,
             amp = 2*gdark*eps*E*z*ff/(q2+mvec*mvec)
         elif kind == 'E':
             # The node is tuned only for A=131.3 and equal p/n Helm response.
-            ma0 = 122.
-            n0 = 131.3-54
-            f0 = n0*fn+54*fp
+            A0 = 131.3
+            ma0 = A0*0.9315
+            n0 = A0-z
+            f0 = n0*fn+z*fp
             eps_node = -f0*(2*ma0*node_kev*1e-6 + mvec*mvec)/(3*gdark*E*54)
             amp = (n*fn+z*fp+3*gdark*eps_node*E*z/(q2+mvec*mvec))*ff
         else:
@@ -124,8 +128,7 @@ def rate_vector(mass: float, delta_kev: float, kind: str,
     return common_rate_factor(mass, fraction)*out*acceptance(ER)
 
 
-def rate_dipole_charge(mass: float, delta_kev: float, dipole_muN: float,
-                       fraction: float = 1) -> np.ndarray:
+def rate_dipole_charge(mass: float, delta_kev: float, dipole_muN: float, fraction: float = 1) -> np.ndarray:
     """Leading electric-charge nuclear response of a transition dipole.
 
     The positive magnetic-magnetic nuclear-spin contribution is omitted.
@@ -143,7 +146,7 @@ def rate_dipole_charge(mass: float, delta_kev: float, dipole_muN: float,
         coefficient = ER*(1/(2*ma)+1/mass)+delta*(1/reduced+delta/(2*ma*ER))
         integrated = np.maximum(zeta-coefficient*eta, 0)
         ff = helm(a, np.sqrt(2*ma*ER))
-        out += abund * ALPHA*54**2*mu_dm**2/ER*ff**2*integrated
+        out += abund*ALPHA*54**2*mu_dm**2/ER*ff**2*integrated
     return common_rate_factor(mass, fraction)*out*acceptance(ER)
 
 
@@ -156,18 +159,18 @@ def row(label: str, rate: np.ndarray, mass: float, delta: float) -> dict:
     full = integral(rate)*EXPOSURE
     total = integral(rate)
     return {
-        'scenario': label, 'mass_GeV': mass, 'delta_keV_signed': delta,
-        'N_toy_per_2p84_tonneyear': full,
+        'scenario': label,
+        'mass_GeV': mass,
+        'delta_keV_signed': delta,
+        'N_toy_per_2.84_tonneyear': full,
         'fraction_200_270_keV': integral(rate, 200, 270)/total if total else None,
         'fraction_below_150_keV': integral(rate, 5.4, 150)/total if total else None,
         'peak_keV': float(ER[np.argmax(rate)]*1e6),
-        'vmin_248_kms_A131': float(vmin(np.array([248e-6]), 131*.9315, mass,
-                                       delta*1e-6)[0]),
+        'vmin_248_kms_A131': float(vmin(np.array([248e-6]), 131*.9315, mass, delta*1e-6)[0]),
     }
 
 
-def decay_length(mass: float, delta_kev: float, dipole_muN: float,
-                 speed_kms: float = 680) -> float:
+def decay_length(mass: float, delta_kev: float, dipole_muN: float, speed_kms: float = 680) -> float:
     mu_dm = dipole_muN*MUN
     width = mu_dm**2*(delta_kev*1e-6)**3/np.pi
     return speed_kms * 1000 * 6.582119569e-25/width
@@ -180,12 +183,10 @@ def sensitivity_scan() -> dict:
 
     def selected_counts() -> dict:
         return {
-            'B_delta350_eps1e-4':integral(rate_vector(3000,350,'B',eps=1e-4))*EXPOSURE,
-            'C_delta370_qZquarter':integral(rate_vector(3000,370,'Z'))*EXPOSURE,
-            'D_minus800_Gp1e-6':integral(rate_vector(3000,-800,'D',mvec=10,
-                                     eps=1e-6*100/(2*E)))*EXPOSURE,
-            'E_delta290_node140':integral(rate_vector(3000,290,'E',mvec=.15,
-                                     gdark=.03,node_kev=140))*EXPOSURE,
+            'B_delta350_eps1e-4':integral(rate_vector(3000, 350, 'B'))*EXPOSURE,
+            'C_delta370_qZquarter':integral(rate_vector(3000, 370, 'Z'))*EXPOSURE,
+            'D_minus800_Gp1e-6':integral(rate_vector(3000, -800, 'D', eps=1e-6*100/(2*E)))*EXPOSURE,
+            'E_delta290_node140':integral(rate_vector(3000, 290, 'E', mvec=.15, gdark=.03, node_kev=140))*EXPOSURE,
         }
 
     output = {'vesc_kms':{}, 'uniform_Helm_q_scale':{}}
@@ -211,73 +212,81 @@ def main() -> None:
 
     rows = []
     for d in [300, 350]:
-        r = rate_dipole_charge(1000, d, 1.8e-3)
-        line = row('A dipole-charge, mu=0.0018muN, xi=1', r, 1000, d)
+        rA = rate_dipole_charge(1000, d, 1.8e-3)
+        line = row('A dipole-charge, mu=0.0018muN, xi=1', rA, 1000, d)
         lam = decay_length(1000, d, 1.8e-3)
         line['lambda_m_at_680_kms'] = lam
         line['toy_survival_L0p5m'] = float(np.exp(-.5/lam))
-        line['toy_max_science_events_L0p5m'] = line['N_toy_per_2p84_tonneyear']*lam/(np.e*.5)
+        line['toy_max_science_events_L0p5m'] = line['N_toy_per_2.84_tonneyear']*lam/(np.e*.5)
         rows.append(line)
-    rb = rate_vector(3000, 350, 'B', eps=1e-4)
-    bn = integral(rb)*EXPOSURE
+
+    rB = rate_vector(3000, 350, 'B')
+    bn = integral(rB)*EXPOSURE
     eps_one = 1e-4/np.sqrt(bn)
-    rows.append(row('B UDD vector, eps=1e-4, g=1, mV=10GeV, xi=1', rb, 3000, 350))
+    rows.append(row('B UDD vector, eps=1e-4, g=1, mV=10GeV, xi=1', rB, 3000, 350))
     rows[-1]['epsilon_for_one_toy_event'] = eps_one
+
     for d in [275, 350, 370, 375]:
-        rows.append(row('C hybrid Z, qZ=1/4, xi=1', rate_vector(3000,d,'Z'), 3000, d))
+        rC = rate_vector(3000, d, 'Z')
+        rows.append(row('C hybrid Z, qZ=1/4, xi=1', rC, 3000, d))
+
     for d in [270, 600, 800, 850]:
-        rows.append(row('D CS exothermic, Gp=1e-6GeV^-2, excited fraction=1',
-                        rate_vector(3000,-d,'D',mvec=10,gdark=1,
-                                    eps=1e-6*100/(2*E)), 3000,-d))
+        rD = rate_vector(3000, -d, 'D', eps=1e-6*100/(2*E))
+        rows.append(row('D CS exothermic, Gp=1e-6GeV^-2, excited fraction=1', rD, 3000, -d))
+        
     # An explicit subdominant excited-population benchmark, with the full
     # propagator retained. First solve the rate's exact epsilon^2 scaling.
     eps_start = 5e-5
-    rd0 = rate_vector(3000,-800,'D',fraction=.1,mvec=1,gdark=.1,eps=eps_start)
+    rd0 = rate_vector(3000, -800, 'D', fraction=.1, mvec=1, gdark=.1, eps=eps_start)
     eps_sub = eps_start/np.sqrt(integral(rd0)*EXPOSURE)
-    rd_sub = rate_vector(3000,-800,'D',fraction=.1,mvec=1,gdark=.1,eps=eps_sub)
-    rows.append(row('D CS, f2=0.1, mV=1GeV, g=0.1, eps fitted to one toy',
-                    rd_sub, 3000,-800))
+    rD_ = rate_vector(3000, -800, 'D', fraction=.1, mvec=1, gdark=.1, eps=eps_sub)
+    rows.append(row('D CS, f2=0.1, mV=1GeV, g=0.1, eps fitted to one toy', rD_, 3000, -800))
     rows[-1]['epsilon_for_one_toy_event'] = eps_sub
+
     # The hybrid benchmark E is the TC state or the DTC replacement in
     # realization I, provided the matching current qZ=1/4 is established.
-    re = rate_vector(3000,275,'E',mvec=.15,gdark=.03)
-    rows.append(row('E hybrid Z+V, node=110keV, xi=1', re, 3000,275))
-    rows[-1]['epsilon_node'] = -( (131.3-54)*np.sqrt(2)*GF*.25
-                                    -54*(1-4*SW2)*np.sqrt(2)*GF*.25
-                                  )*(2*122*110e-6+.15**2)/(3*.03*E*54)
-    re2 = rate_vector(3000,290,'E',mvec=.15,gdark=.03,node_kev=140)
-    rows.append(row('E hybrid Z+V, node=140keV, xi=1', re2,3000,290))
-    output = {'scope':'recoil-only, approximate isotopes and acceptance; not LZ PLR',
-              'halo':{'v0_kms':V0,'vesc_kms':VESC,'vEarth_kms':VE,
-                      'rho_GeV_cm3':RHO},
-              'isotopes_count_abundances':ISOTOPES,
-              'N_target_per_tonne':N_TONNE,
-              'efficiency':'0.96 low logistic(5.4,1.5) high erfc(269.9,12), true energy',
-              'dipole':'charge response only, magnetic nuclear-spin response omitted',
-              'rows':rows}
+    rE1 = rate_vector(3000, 275, 'E', mvec=.15, gdark=.03)
+    rows.append(row('E hybrid Z+V, node=110keV, xi=1', rE1, 3000, 275))
+    rows[-1]['epsilon_node'] = -((131.3-54)*np.sqrt(2)*GF*.25-54*(1-4*SW2)*np.sqrt(2)*GF*.25)*(2*122*110e-6+.15**2)/(3*.03*E*54)
+    rE2 = rate_vector(3000, 290, 'E', mvec=.15, gdark=.03, node_kev=140)
+    rows.append(row('E hybrid Z+V, node=140keV, xi=1', rE2, 3000, 290))
+
+    output = {'scope': 'recoil-only, approximate isotopes and acceptance; not LZ PLR',
+              'halo':{'v0_kms': V0, 'vesc_kms': VESC, 'vEarth_kms': VE, 'rho_GeV_cm3': RHO},
+              'isotopes_count_abundances': ISOTOPES,
+              'N_target_per_tonne': N_TONNE,
+              'efficiency': '0.96 low logistic(5.4, 1.5) high erfc(269.9, 12), true energy',
+              'dipole': 'charge response only, magnetic nuclear-spin response omitted',
+              'scenerios': rows}
     output['sensitivity_one_at_a_time'] = sensitivity_scan()
-    (ROOT(1) / 'compare_scenario.json').write_text(json.dumps(output,indent=2))
-    for x in rows:
-        print(x)
+    (ROOT(0) / 'compare_scenario.json').write_text(json.dumps(output, indent=2))
+
     # Area-normalized comparison; no background, detector smearing or veto.
-    curves=[('A dipole, 300 keV',rate_dipole_charge(1000,300,1.8e-3)),
-            ('B vector, 350 keV',rb),
-            ('C $Z$, 370 keV',rate_vector(3000,370,'Z')),
-            ('D exothermic, 800 keV',rate_vector(3000,-800,'D',mvec=10,
-                eps=1e-6*100/(2*E))),
-            ('E hybrid $Z+V$, 290 keV',re2)]
-    fig,ax=plt.subplots(figsize=(7.4,4.4))
-    for lab,r in curves:
-        norm=integral(r)
-        ax.plot(ER*1e6,r/norm*1e-6,label=lab)
-    ax.axvspan(225,270,color='gray',alpha=.15,label='event vicinity (illustrative)')
-    ax.set(xlim=(20,300),xlabel='true xenon recoil [keV]',
-           ylabel='normalized toy accepted density [keV$^{-1}$]')
-    ax.legend(fontsize=8,ncol=2)
+    rA = rate_dipole_charge(1000, 300, 1.8e-3)
+    rC = rate_vector(3000, 370, 'Z')
+    rD = rate_vector(3000, -800, 'D', mvec=10, eps=1e-6*100/(2*E))
+    curves=[('A dipole, 300 keV', rA),
+            ('B vector, 350 keV', rB),
+            ('C $Z$, 370 keV', rC),
+            ('D exothermic, 800 keV', rD),
+            ('E hybrid $Z+V$, 290 keV', rE2)]
+    
+    fig, ax = plt.subplots(figsize=(7.4, 4.4))
+    for lab, r in curves:
+        norm = integral(r)
+        ax.plot(ER*1e6, r/norm*1e-6, label=lab)
+    ax.axvspan(225, 270, color='gray', alpha=.15, label='event vicinity (illustrative)')
+    ax.set(
+        xlim=(20, 330),
+        xlabel='true xenon recoil [keV]',
+        ylabel='normalized toy accepted density [keV$^{-1}$]'
+    )
+    ax.legend(fontsize=8, ncol=2)
     ax.grid(alpha=.2)
+
     fig.tight_layout()
-    fig.savefig(ROOT(1) / 'compare_scenario_shapes.pdf')
-    fig.savefig(ROOT(1) / 'compare_scenario_shapes.png',dpi=180)
+    fig.savefig(ROOT(0) / 'compare_scenario_shapes.pdf')
+    fig.savefig(ROOT(0) / 'compare_scenario_shapes.png', dpi=600)
 
 
 if __name__ == '__main__':
