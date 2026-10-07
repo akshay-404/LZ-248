@@ -14,7 +14,7 @@ from SHVM_LZ_v3_figures_project.scripts import compare_scenarios as cs
 cs.ER = np.linspace(1., 1300., 5197)*1e-6
 K = 0.394
 acc0 = cs.acceptance
-out = json.load(open('cmp.json'))
+out = json.load(open(ROOT(0) / 'cmp.json'))
 for xi in (1.4e-4, 9e-4):
     ds = np.arange(120, 300, 1.)
     N = np.array([np.trapezoid(cs.rate_vector(3000, float(d), 'Z'),

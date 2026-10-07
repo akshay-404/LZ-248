@@ -27,8 +27,9 @@ def stats(r):
     ra = r*acc0(cs.ER)
     roi = np.trapezoid(ra, cs.ER)*cs.EXPOSURE
 
-    def f(lo, hi, w): return np.trapezoid(
-        w[(E >= lo) & (E <= hi)], cs.ER[(E >= lo) & (E <= hi)])*cs.EXPOSURE
+    def f(lo, hi, w):
+        return np.trapezoid(w[(E >= lo) & (E <= hi)], cs.ER[(E >= lo) & (E <= hi)])*cs.EXPOSURE
+    
     return dict(roi=roi, f200=f(200, 300, ra)/roi, fl150=f(0, 150, ra)/roi, gap=f(270, 350, r)/roi, he=0.9*f(350, 650, r)/roi, peak_raw=E[np.argmax(r)])
 
 
