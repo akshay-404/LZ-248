@@ -49,7 +49,7 @@ def vmin(E, mA, m, d):
 
 
 def spectrum_O1(m, delta_keV, sigma_p, halo: Halo, E_keV, fn_fp=1.0, skin=1.0, Z=54):
-    """dR/dE [events / tonne / yr / keV]; isoscalar-like O1 with nucleon couplings fp=1,fn=fn_fp.
+    """dR/dE [events / tonne / yr / keV]; isoscalar-like O1 with nucleon couplings fp=1, fn=fn_fp.
     sigma_p = zero-momentum per-proton cross section (cm^2)."""
     E = E_keV*1e-6
     out = np.zeros_like(E)

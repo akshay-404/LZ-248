@@ -1,12 +1,10 @@
 import numpy as np
-import importlib.util
 import json
 from pathlib import Path
 import sys
 
 ROOT = lambda x : Path(__file__).resolve().parents[x]
-PROJECT_ROOT = Path(__file__).resolve().parents[2]
-sys.path.insert(0, str(PROJECT_ROOT))
+sys.path.insert(0, str(ROOT(2)))
 
 from SHVM_LZ_v3_figures_project.scripts import compare_scenarios as cs
 
@@ -36,29 +34,30 @@ def stats(r):
 Ee = cs.E
 out = {}
 for lab, f, a, k in [('D-270', cs.rate_vector, (3000, -270, 'D'), dict(mvec=10, eps=1e-6*100/(2*Ee))),
-                     ('D-600', cs.rate_vector, (3000, -600, 'D'),
-                      dict(mvec=10, eps=1e-6*100/(2*Ee))),
+                     ('D-600', cs.rate_vector, (3000, -600, 'D'), dict(mvec=10, eps=1e-6*100/(2*Ee))),
                      ('C350', cs.rate_vector, (3000, 350, 'Z'), {}),
                      ('A300', cs.rate_dipole_charge, (1000, 300, 1.8e-3), {}),
                      ('B350', cs.rate_vector, (3000, 350, 'B'), dict(eps=1e-4)),
                      ('C275', cs.rate_vector, (3000, 275, 'Z'), {}),
                      ('C370', cs.rate_vector, (3000, 370, 'Z'), {}),
-                     ('D-800', cs.rate_vector, (3000, -800, 'D'),
-                      dict(mvec=10, eps=1e-6*100/(2*Ee))),
+                     ('D-800', cs.rate_vector, (3000, -800, 'D'), dict(mvec=10, eps=1e-6*100/(2*Ee))),
                      ('E290', cs.rate_vector, (3000, 290, 'E'), dict(mvec=.15, gdark=.03, node_kev=140))]:
     s = stats(raw(f, *a, **k))
     out[lab] = s
-    print('%-6s N1(Helm,param ref)=%10.4g  f200-300=%.2f  f<150=%.2f  R_gap=%.3f  R_HE=%.3f  rawpeak=%.0f' %
+    print('%-6s N1(Helm, param ref)=%10.4g  f200-300=%.2f  f150=%.2f  R_gap=%.3f  R_HE=%.3f  rawpeak=%.0f' %
           (lab, s['roi'], s['f200'], s['fl150'], s['gap'], s['he'], s['peak_raw']))
+    
 # C hybrid at relic fraction xi=(1.4-9)e-4 (v4): find delta with calibrated N=1
 for xi in (1.4e-4, 9e-4):
     ds = np.arange(200, 300, 1.)
+
     # rate_vector already includes acceptance
-    N = [np.trapezoid(cs.rate_vector(3000, float(d), 'Z'), cs.ER)
-         * cs.EXPOSURE*K*xi for d in ds]
+    N = [np.trapezoid(cs.rate_vector(3000, float(d), 'Z'), cs.ER)*cs.EXPOSURE*K*xi for d in ds]
     d1 = np.interp(0, -np.log(N), ds)
     s = stats(raw(cs.rate_vector, 3000, d1, 'Z'))
-    print('C at xi=%.1e: delta(N_cal=1)=%.0f keV, f200-300=%.2f f<150=%.2f R_HE=%.3f' %
+    print('C at xi=%.1e: delta(N_cal=1)=%.0f keV, f200-300=%.2f fl150=%.2f R_HE=%.3f' %
           (xi, d1, s['f200'], s['fl150'], s['he']))
     out['Crelic_%g' % xi] = dict(delta=d1, **s)
-json.dump(out, open(ROOT(0) / 'cmp.json', 'w'), indent=1, default=float)
+    out['Crelic_%g' % xi]['d1'] = d1
+
+json.dump(out, open(ROOT(0) / 'cmp.json', 'w'), indent=2, default=float)

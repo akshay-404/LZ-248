@@ -8,8 +8,7 @@ from pathlib import Path
 import sys
 
 ROOT = lambda x : Path(__file__).resolve().parents[x]
-PROJECT_ROOT = Path(__file__).resolve().parents[2]
-sys.path.insert(0, str(PROJECT_ROOT))
+sys.path.insert(0, str(ROOT(2)))
 
 from SHVM_LZ_v3_figures_project.scripts import compare_scenarios as cs
 
